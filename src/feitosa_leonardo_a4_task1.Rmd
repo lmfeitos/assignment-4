@@ -7,24 +7,88 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+library(naniar)
+library(NbClust)
+library(cluster)
+library(factoextra)
+library(dendextend)
+library(ggdendro)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+## Read in the data
+lter_data <- read_csv(here("data", "sbc_lter_registered_stream_chemistry.csv"))
 ```
 
-## Including Plots
+```{r}
+# Data wrangling
+lter_tidy <- lter_data %>% 
+  na_if(-999) %>% 
+  mutate(timestamp_local = as.Date(timestamp_local)) %>% 
+  drop_na()
 
-You can also embed plots, for example:
+# Calculating means by site
+lter_group <- lter_tidy %>% 
+  group_by(site_code) %>% 
+  summarise(mean_nh4 = mean(nh4_uM),
+            mean_no3 = mean(no3_uM),
+            mean_po4 = mean(po4_uM),
+            mean_tdn = mean(tdn_uM),
+            mean_tdp = mean(tdp_uM),
+            mean_tpc = mean(tpc_uM),
+            mean_tpn = mean(tpn_uM),
+            mean_tpp = mean(tpp_uM),
+            mean_tss = mean(tss_mgperLiter),
+            mean_spec = mean(spec_cond_uSpercm))
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Scaled numeric variables
+lter_scaled <- lter_group %>% 
+  select(2:10) %>% 
+  scale()
+
+# Update with site names
+rownames(lter_scaled) <- lter_group$site_code
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+# Calculating euclidian distances
+lter_dist <- dist(lter_scaled, method = "euclidian")
+
+# Hierarchical clustering
+lter_hclust <- hclust(lter_dist, method = "complete")
+
+plot(lter_hclust)
+```
+
+```{r}
+# Plotting dendrogram
+ggdendrogram(lter_hclust,
+             rotate = T) +
+  labs(x = "Sites",
+       y = "") +
+  theme_bw()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
