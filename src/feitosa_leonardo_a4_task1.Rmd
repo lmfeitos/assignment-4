@@ -29,22 +29,22 @@ lter_data <- read_csv(here("data", "sbc_lter_registered_stream_chemistry.csv"))
 # Data wrangling
 lter_tidy <- lter_data %>% 
   na_if(-999) %>% 
-  mutate(timestamp_local = as.Date(timestamp_local)) %>% 
-  drop_na()
+  mutate(timestamp_local = as.Date(timestamp_local))
 
 # Calculating means by site
 lter_group <- lter_tidy %>% 
   group_by(site_code) %>% 
-  summarise(mean_nh4 = mean(nh4_uM),
-            mean_no3 = mean(no3_uM),
-            mean_po4 = mean(po4_uM),
-            mean_tdn = mean(tdn_uM),
-            mean_tdp = mean(tdp_uM),
-            mean_tpc = mean(tpc_uM),
-            mean_tpn = mean(tpn_uM),
-            mean_tpp = mean(tpp_uM),
-            mean_tss = mean(tss_mgperLiter),
-            mean_spec = mean(spec_cond_uSpercm))
+  summarise(mean_nh4 = mean(nh4_uM, na.rm = T),
+            mean_no3 = mean(no3_uM, na.rm = T),
+            mean_po4 = mean(po4_uM, na.rm = T),
+            mean_tdn = mean(tdn_uM, na.rm = T),
+            mean_tdp = mean(tdp_uM, na.rm = T),
+            mean_tpc = mean(tpc_uM, na.rm = T),
+            mean_tpn = mean(tpn_uM, na.rm = T),
+            mean_tpp = mean(tpp_uM, na.rm = T),
+            mean_tss = mean(tss_mgperLiter, na.rm = T),
+            mean_spec = mean(spec_cond_uSpercm, na.rm = T)) %>% 
+  drop_na()
 
 # Scaled numeric variables
 lter_scaled <- lter_group %>% 
@@ -68,10 +68,13 @@ plot(lter_hclust)
 ```{r}
 # Plotting dendrogram
 ggdendrogram(lter_hclust,
-             rotate = T) +
+             rotate = T,
+             size = 1) +
   labs(x = "Sites",
        y = "") +
-  theme_bw()
+  theme_bw() +
+  theme(axis.title = element_text(size = 12, face = "bold", color = "black", hjust = 0.5),
+        axis.text = element_text(size = 10, color = "black"))
 
 ```
 
