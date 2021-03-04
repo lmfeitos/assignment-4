@@ -10,10 +10,59 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
 library(janitor)
+library(nlstools)
 ```
 
 ```{r}
 # Read in the data
-fish_catch <- read_csv(here("data", "fish_catch.csv"))
+fish_catch <- read_csv(here("data", "fish_catch.csv"), skip = 2) %>% 
+  drop_na() %>% 
+  rownames_to_column() %>% 
+  clean_names() %>% 
+  mutate(wild_catch = as.numeric(wild_catch),
+         year = as.numeric(year))
+
+# Create a vector for rownames
+rank <- c(0:62)
+
+rownames(rank) <- fish_catch$rowname
 ```
+
+```{r}
+# Exploratory data viz
+ggplot(data = fish_catch, aes(x = year, y = as.numeric(wild_catch))) +
+  geom_point() +
+  scale_x_continuous(breaks = seq(1950, 2012, by = 10))
+```
+
+```{r}
+# Log transformed data
+ggplot(data = fish_catch, aes(x = year, y = log(wild_catch))) +
+  geom_point() +
+  scale_x_continuous(breaks = seq(1950, 2012, by = 10))
+```
+
+
+Wild catches seem to follow a steady increase over the first five decades comprising the data and then reaching a plateau between the 1990s and 2010s. 
+
+*INCLUDE EQUATION*
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
