@@ -96,7 +96,8 @@ ggplot(data = fish_complete, aes(x = year_new, y = wild_catch)) +
        y = "Number of wild fish caught") +
   theme_bw() +
   theme(axis.text = element_text(size = 10, color = "black"),
-        axis.title = element_text(size = 11, color = "black", face = "bold", vjust = 0.7))
+        axis.title = element_text(size = 11, color = "black", face = "bold", vjust = 0.7),
+        panel.grid = element_blank())
 ```
 
 

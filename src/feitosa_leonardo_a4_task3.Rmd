@@ -13,6 +13,67 @@ library(boot)
 
 ```{r}
 # Create data
+values <- c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 
+values <- data.frame(values)
+
+values_new <- values %>% 
+  mutate(gender = case_when(
+    values %in% 1 ~ "Nonbinary/queer",
+    values %in% 0 ~ "Woman"
+  ))
 ```
+
+```{r}
+# Create function
+prop_fun <- function (x, i) {proportions(x[i])}
+
+values_vec <- values_new$values
+
+gender_boot_100 <- boot(values_vec,
+                        statistic = prop_fun,
+                        R = 100)
+
+gender_boot_10k <- boot(values_vec,
+                        statistic = prop_fun,
+                        R = 10000)
+```
+
+```{r}
+# Outputs of both bootstrap resamples
+summary(gender_boot_100)
+
+summary(gender_boot_10k)
+```
+
+```{r}
+gender_boot_100 <- data.frame(bs_prop = gender_boot_100$t)
+gender_boot_10k <- data.frame(bs_prop = gender_boot_10k$t)
+
+p1 <- ggplot(data = )
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
