@@ -2,59 +2,89 @@
 title: "feitosa_leonardo_a4_task3"
 author: "Leonardo Feitosa"
 date: "01/03/2021"
-output: html_document
+output: 
+  html_document:
+    theme: journal
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(boot)
+library(patchwork)
 ```
 
+
+## Create data
 ```{r}
-# Create data
 values <- c(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
 
-values <- data.frame(values)
-
-values_new <- values %>% 
-  mutate(gender = case_when(
-    values %in% 1 ~ "Nonbinary/queer",
-    values %in% 0 ~ "Woman"
-  ))
+values_df <- data.frame(values)
 ```
 
+```{r, include = FALSE}
+# Boolean test
+values == 1
+
+
+values_prop <- mean(values == 1)
+values_prop
+```
+
+## Exploratory analysis
 ```{r}
-# Create function
-prop_fun <- function (x, i) {proportions(x[i])}
+hist(values_df$values)
 
-values_vec <- values_new$values
+mean(values_df$values)
 
-gender_boot_100 <- boot(values_vec,
+t.test(values_df$values)
+```
+
+
+## Create function
+```{r}
+prop_fun <- function (x, i) {mean(x[i])}
+
+values_vec <- values_df$values
+
+gender_boot_100 <- boot(values,
                         statistic = prop_fun,
                         R = 100)
 
-gender_boot_10k <- boot(values_vec,
+gender_boot_10k <- boot(values,
                         statistic = prop_fun,
                         R = 10000)
 ```
 
 ```{r}
 # Outputs of both bootstrap resamples
-summary(gender_boot_100)
+gender_boot_100
 
-summary(gender_boot_10k)
+gender_boot_10k
 ```
 
+
+
+## Create data frames
 ```{r}
-gender_boot_100 <- data.frame(bs_prop = gender_boot_100$t)
-gender_boot_10k <- data.frame(bs_prop = gender_boot_10k$t)
-
-p1 <- ggplot(data = )
+gender_boot_100_df <- data.frame(bs_prop = gender_boot_100$t)
+gender_boot_10k_df <- data.frame(bs_prop = gender_boot_10k$t)
 ```
 
+## Plot histogram
+```{r, message = FALSE}
+ggplot(data = gender_boot_10k_df, aes(x = bs_prop)) +
+  geom_histogram() +
+  theme_bw()
+```
 
+## Calculate the confidence interval
+```{r}
 
+boot.ci(gender_boot_10k, conf = 0.95)
+```
+
+The proportion of UCSB students who reported some kind of exclusionary, hostile or intimidating experience at the university and that self-report and nonbinary/genderqueer is 61% (n = 36), with a 95% bootstrap confidence interval of [44.4, 78.0] (n = 10,000 bootstrap samples).
 
 
 
